@@ -23,7 +23,7 @@ const EditCustomer = ({ isOpen, onClose, customer }) => {
                 last_name: customer.last_name,
                 city: customer.city,
                 company: customer.company,
-                image: customer.profile_img || '' // Assuming customer has profile_img
+                profile_img: customer.profile_img || '' // Assuming customer has profile_img
             });
             setImagePreview(customer.profile_img || '');
             setOriginalImage(customer.profile_img || '');
@@ -41,7 +41,7 @@ const EditCustomer = ({ isOpen, onClose, customer }) => {
             const reader = new FileReader();
             reader.onloadend = () => {
                 setImagePreview(reader.result);
-                setFormData((prevData) => ({ ...prevData, image: reader.result }));
+                setFormData((prevData) => ({ ...prevData, profile_img: reader.result }));
             };
             reader.readAsDataURL(file);
         }
@@ -53,21 +53,36 @@ const EditCustomer = ({ isOpen, onClose, customer }) => {
 
     const handleUndoImage = () => {
         setImagePreview(originalImage);
-        setFormData((prevData) => ({ ...prevData, image: originalImage }));
+        setFormData((prevData) => ({ ...prevData, profile_img: originalImage }));
+
+        if (fileInputRef.current) {
+            fileInputRef.current.value = ''; 
+        }
     };
 
     const handleSubmit = async () => {
         try {
-            const updateData = { ...formData };
-            if (formData.image === originalImage) {
-                delete updateData.image; // Exclude image if not changed
+            const updateData = new FormData();
+            updateData.append('first_name', formData.first_name);
+            updateData.append('last_name', formData.last_name);
+            updateData.append('city', formData.city);
+            updateData.append('company', formData.company);
+
+            // Append the image file only if it's a new one
+            if (imagePreview !== originalImage) {
+                updateData.append('profile_img', fileInputRef.current.files[0]);
             }
-            await axios.put(`${import.meta.env.VITE_SERVER}/${customer.id}`, updateData);
+
+            // Send the request using `axios`
+            await axios.put(`${import.meta.env.VITE_SERVER}/${customer.id}`, updateData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data', // Set the content type to multipart
+                },
+            });
+
             onClose(); // Close the modal
-            window.location.reload()
         } catch (error) {
             console.error('Error updating customer:', error);
-            window.location.reload()
         }
     };
 
@@ -80,7 +95,7 @@ const EditCustomer = ({ isOpen, onClose, customer }) => {
 
                 {/* Image Upload */}
                 <div className="mb-4 flex flex-col items-center">
-                    <div className="relative">
+                    <div className="relative" style={{ minHeight: '96px' }}>
                         <img
                             src={imagePreview || 'default-image.png'}
                             alt="Customer"
@@ -88,12 +103,12 @@ const EditCustomer = ({ isOpen, onClose, customer }) => {
                             onClick={handleImageClick}
                         />
                         {imagePreview !== originalImage && (
-                            <Button
+                            <button
                                 onClick={handleUndoImage}
                                 className="absolute top-0 right-0 p-1 bg-gray-300 rounded-full"
                             >
                                 <MdClose className="text-red-600" />
-                            </Button>
+                            </button>
                         )}
                     </div>
                     <input
@@ -104,6 +119,7 @@ const EditCustomer = ({ isOpen, onClose, customer }) => {
                         ref={fileInputRef}
                     />
                 </div>
+
 
                 <label className="block mb-4">
                     <span className="text-gray-700">First Name</span>
