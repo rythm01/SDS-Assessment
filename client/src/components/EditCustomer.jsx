@@ -79,9 +79,10 @@ const EditCustomer = ({ isOpen, onClose, customer }) => {
                     'Content-Type': 'multipart/form-data', // Set the content type to multipart
                 },
             });
-
+            window.location.reload();
             onClose(); // Close the modal
         } catch (error) {
+            window.location.reload();
             console.error('Error updating customer:', error);
         }
     };

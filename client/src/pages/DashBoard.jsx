@@ -1,11 +1,12 @@
-import { ButtonGroup, Button } from "@material-tailwind/react";
+import { ButtonGroup, Button, Tooltip } from "@material-tailwind/react";
 import { useEffect, useState } from "react";
 import loading from '/loading.svg';
 import axios from 'axios';
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import { Link, useNavigate } from 'react-router-dom';
-import { MdOutlineEdit } from "react-icons/md";
+import { MdOutlineClear, MdOutlineEdit } from "react-icons/md";
 import EditCustomer from "../components/EditCustomer";
+import { FiSearch } from 'react-icons/fi';
 
 const Dashboard = () => {
     const [customers, setCustomers] = useState([]);
@@ -58,15 +59,33 @@ const Dashboard = () => {
                         placeholder="Search by name or city..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="p-2 w-full max-w-30 border border-gray-300 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-primary-500 transition duration-300 ease-in-out"
+                        className="p-2 w-full max-w-30 border border-gray-300 rounded-tl-lg rounded-bl-lg shadow-md focus:outline-none focus:ring-1 focus:ring-primary-500 transition duration-300 ease-in-out"
                     />
+                    {searchTerm ? (
+                        <Tooltip content="Clear Results">
+                            <button
+                                className="p-[11px] border bg-primary text-[#fff] rounded-r-lg focus:outline-none hover:border-gray-300"
+                                onClick={() => {
+                                    setSearchTerm('');
+                                }}
+                            >
+                                <MdOutlineClear />
+                            </button>
+                        </Tooltip>
+                    ) : (
+                        <button className="p-[11px] border bg-primary text-[#fff] rounded-r-lg focus:outline-none hover:border-gray-300">
+                            <FiSearch />
+                        </button>)
+                    }
                 </div>
 
                 <div className="mb-6 flex justify-center">
                     <Link to="/cities">
-                        <Button className="px-4 py-3 bg-primary text-white rounded-lg shadow-md hover:bg-primary-dark transition duration-300 ease-in-out">
-                            View Cities
-                        </Button>
+                        <Tooltip content="View Cities and Customer Details" placement='left'>
+                            <Button className="px-4 py-3 bg-primary text-white rounded-lg shadow-md hover:bg-primary-dark transition duration-300 ease-in-out">
+                                View Cities
+                            </Button>
+                        </Tooltip>
                     </Link>
                 </div>
 
@@ -90,7 +109,7 @@ const Dashboard = () => {
                                     <th className="py-4 px-6 text-left">Edit</th>
                                 </tr>
                             </thead>
-                            <tbody className="max-h-[50vh] overflow-y-auto">
+                            <tbody className="max-h-[50vh] h-[20vh] min-h-4 overflow-y-auto">
                                 {customers.length === 0 ? (
                                     <tr>
                                         <td colSpan="4" className="text-center py-6">
@@ -106,15 +125,17 @@ const Dashboard = () => {
                                             <td className="py-4 px-6" onClick={() => navigate(`/customer/${customer.id}`)}>{customer.city}</td>
                                             <td className="py-4 px-6" onClick={() => navigate(`/customer/${customer.id}`)}>{customer.company}</td>
                                             <td className="py-4 px-6">
-                                                <Button className="bg-primary p-3 rounded-lg text-white shadow-md hover:bg-primary-dark transition duration-300 ease-in-out"
-                                                    onClick={(e) => {
-                                                        e.preventDefault();
-                                                        toggleModal();
-                                                        setSelectedCustomer(customer);
-                                                    }}
-                                                >
-                                                    <MdOutlineEdit className="h-3 w-3" />
-                                                </Button>
+                                                <Tooltip content="Edit Details">
+                                                    <Button className="bg-primary p-3 rounded-lg text-white shadow-md hover:bg-primary-dark transition duration-300 ease-in-out"
+                                                        onClick={(e) => {
+                                                            e.preventDefault();
+                                                            toggleModal();
+                                                            setSelectedCustomer(customer);
+                                                        }}
+                                                    >
+                                                        <MdOutlineEdit className="h-3 w-3" />
+                                                    </Button>
+                                                </Tooltip>
                                             </td>
                                         </tr>
                                     ))
@@ -166,7 +187,7 @@ const Dashboard = () => {
                                 ) : (
                                     <>
                                         <button
-                                            className={`px-3 py-1 ${activePage == 1 ? 'bg-primary-600 text-white' : 'bg-white text-primary border border-primary'} rounded-full transition duration-200`}
+                                            className={`px-3 py-1 ${activePage == 1 ? 'bg-primary text-white' : 'bg-white text-primary border border-primary'} rounded-full transition duration-200`}
                                             onClick={() => setActivePage(1)}
                                         >
                                             1
@@ -177,7 +198,7 @@ const Dashboard = () => {
                                             .map(page => (
                                                 <button
                                                     key={page}
-                                                    className={`px-3 py-1 ${activePage == page ? 'bg-primary-600 text-white' : 'bg-white text-primary border border-primary'} rounded-full transition duration-200`}
+                                                    className={`px-3 py-1 ${activePage == page ? 'bg-primary text-white' : 'bg-white text-primary border border-primary'} rounded-full transition duration-200`}
                                                     onClick={() => setActivePage(page)}
                                                 >
                                                     {page}
@@ -186,7 +207,7 @@ const Dashboard = () => {
                                         }
                                         {activePage < totalPages - 2 && <span className="px-2">...</span>}
                                         <button
-                                            className={`px-3 py-1 ${activePage == totalPages ? 'bg-primary-600 text-white' : 'bg-white text-primary border border-primary'} rounded-full transition duration-200`}
+                                            className={`px-3 py-1 ${activePage == totalPages ? 'bg-primary text-white' : 'bg-white text-primary border border-primary'} rounded-full transition duration-200`}
                                             onClick={() => setActivePage(totalPages)}
                                         >
                                             {totalPages}
