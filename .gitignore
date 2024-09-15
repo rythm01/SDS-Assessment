@@ -25,7 +25,4 @@ dist-ssr
 *.sw?
 
 client/node_modules/
-
-*.env
-client\.env
 logs.txt
